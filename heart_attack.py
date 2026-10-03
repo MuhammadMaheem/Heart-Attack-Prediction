@@ -55,13 +55,29 @@ class HeartAttack():
         st.header("Enter the Values")
         st.write("Fill in the details to check if a patient has an heart attack or not")
         with st.form("Input Form"):
-            age =st.number_input("Enter the Age",0,100,0)
-            gender =st.selectbox("Selet gender: ",["Male","Female"], 1 if "Male" else 0)
-            heart_rate = st.number_input("Enter the Heart Rate, ")
+            age = st.number_input("Enter the Age", 0, 100, 0)
+            gender = st.selectbox("Select Gender:", ["Male", "Female"])
+            heart_rate = st.number_input("Enter the Heart Rate (bpm)", 0, 250, 72)
+            systolic_bp = st.number_input("Systolic Blood Pressure (mmHg)", 0, 300, 120)
+            diastolic_bp = st.number_input("Diastolic Blood Pressure (mmHg)", 0, 200, 80)
+            blood_sugar = st.number_input("Blood Sugar (mg/dL)", 0.0, 500.0, 100.0)
+            ck_mb = st.number_input("CK-MB (U/L)", 0.0, 300.0, 5.0)
+            troponin = st.number_input("Troponin (ng/mL)", 0.0, 10.0, 0.01, format="%.3f")
+            submitted = st.form_submit_button("Predict Heart Attack")
 
-        submitted = st.form_submit_button("Predict Heart Attack")
         if submitted:
-            prediction = self.model.predict()
+            gender_val = 1 if gender == "Male" else 0
+            input_df = pd.DataFrame([[age, gender_val, heart_rate, systolic_bp,
+                                      diastolic_bp, blood_sugar, ck_mb, troponin]],
+                                    columns=self.selected_features)
+            prediction = self.model.predict(input_df)[0]
+            st.divider()
+            if prediction == 1:
+                st.error("⚠️ High Risk: The model predicts a **Heart Attack**.", icon="🫀")
+            else:
+                st.success("✅ Low Risk: The model predicts **No Heart Attack**.", icon="❤️")
+            st.subheader("Input Summary")
+            st.dataframe(input_df)
         
 
 
